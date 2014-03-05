@@ -183,8 +183,11 @@ class Changes(object):
 
 	def __init__(self, repo, hard):
 		self.commits = []
-		git_log_hashes_r = subprocess.Popen(filter(None, ["git", "rev-list", "--reverse", "--no-merges",
-		                                    interval.get_since(), interval.get_until(), "HEAD"]), bufsize=1,
+                git_args = filter(None, ["git", "rev-list", "--reverse", "--no-merges",
+                  interval.get_since(), interval.get_until(), "HEAD"])
+                import sys
+                sys.stderr.write('running Git: %s\n' % str(git_args))
+		git_log_hashes_r = subprocess.Popen(git_args, bufsize=1,
 		                                    stdout=subprocess.PIPE).stdout
 		lines = git_log_hashes_r.readlines()
 		git_log_hashes_r.close()
@@ -220,6 +223,7 @@ class Changes(object):
 			__thread_lock__.release()
 
 		self.commits = [item for sublist in self.commits for item in sublist]
+                sys.stderr.write('collected commits: %d\n' % len(self.commits))
 
 		if len(self.commits) > 0:
 			if interval.has_interval() and len(self.commits) > 0:
